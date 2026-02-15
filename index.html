@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Campus Scheduling System</title>
+
+<style>
+    .history-section {
+    width: 430px;
+    margin-top: 40px;
+    color: white;
+    text-align: center;
+}
+
+.history-section h2 {
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+.history-list {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.booking-card {
+    background: rgba(255,255,255,0.15);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.booking-card p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.approved-badge {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: #00c853;
+    font-size: 12px;
+}
+@media (max-width: 500px) {
+    .container,
+    .history-section {
+        width: 90%;
+    }
+}
+* {
+    box-sizing: border-box;
+}
+
+/* Beautiful animated gradient background */
+body {
+    margin: 0;
+    padding: 40px 0;   /* adds breathing space */
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+
+    background: linear-gradient(-45deg, #3a7bd5, #6a11cb, #00c6ff, #8e2de2);
+    background-size: 400% 400%;
+    animation: gradientBG 12s ease infinite;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Background animation */
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Title */
+h1 {
+    color: white;
+    font-size: 34px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* Center container */
+.container {
+    width: 430px;
+    padding: 45px;
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+
+    text-align: left;
+}
+
+/* Labels */
+label {
+    display: block;
+    font-size: 14px;
+    color: white;
+    margin-bottom: 6px;
+    margin-top: 15px;
+    font-weight: 500;
+}
+
+/* Inputs */
+input,
+select {
+    width: 100%;
+    height: 48px;
+    padding: 0 15px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    background: rgba(255,255,255,0.95);
+}
+
+/* Search icon alignment */
+.search-container {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.6;
+}
+
+#venueSearch {
+    padding-left: 38px;
+}
+
+/* BOOK BUTTON */
+button {
+    width: 100%;
+    height: 50px;
+    margin-top: 25px;
+
+    border-radius: 14px;
+    border: none;
+
+    background: linear-gradient(to right, #ff512f, #dd2476);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+
+    transition: all 0.3s ease;
+}
+
+/* Hover effect */
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(221, 36, 118, 0.5);
+}
+
+/* Result */
+#result {
+    margin-top: 18px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.approved {
+    color: #00ff9d;
+}
+
+.rejected {
+    color: #ff4d4d;
+}
+
+.admin-toggle {
+    margin-bottom: 15px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: none;
+    background: #222;
+    color: white;
+    cursor: pointer;
+}
+#venueSelect {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    padding: 0 12px;
+    font-size: 14px;
+    border: none;
+}
+
+</style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <h1>Smart Campus Scheduling</h1>
+
+    <!-- FORM CARD -->
+    <div class="container">
+
+        <label>Venue:</label>
+
+        <div class="search-container">
+            <span class="search-icon"></span>
+            <select id="venueSelect">
+                <option value="">Select Venue</option>
+            </select>
+            <div id="venueDropdown" class="dropdown"></div>
+        </div>
+
+        <div id="venueDetails" class="venue-details"></div>
+
+        <label>Event Type:</label>
+        <select id="event_type">
+            <option value="Academic">Academic</option>
+            <option value="Club">Club</option>
+        </select>
+
+        <label>Event Name:</label>
+        <input type="text" id="event_name" placeholder="Enter event name">
+
+        <label>Date:</label>
+        <input type="date" id="date">
+
+        <label>Start Time:</label>
+        <input type="time" id="start_time">
+
+        <label>End Time:</label>
+        <input type="time" id="end_time">
+
+        <button onclick="bookVenue()">Book Venue</button>
+        <div id="result"></div>
+
+    </div>
+
+    <button onclick="toggleAdmin()" class="admin-toggle">
+        Switch to Admin Mode
+    </button>
+
+    <!-- ✅ HISTORY SECTION MOVED OUTSIDE -->
+    <div class="history-section">
+        <h2>Upcoming Bookings</h2>
+
+        <div class="history-list" id="historyList"></div>
+    </div>
+
+</div>
+
+<script>
+let isAdmin = false;
+const ADMIN_PASSWORD = "admin123";   // change this to your password
+
+async function bookVenue() {
+
+    // 1️⃣ Collect form data
+    const data = {
+        venue: document.getElementById("venueSelect").value,
+        event_type: document.getElementById("event_type").value,
+        event_name: document.getElementById("event_name").value,
+        date: document.getElementById("date").value,
+        start_time: document.getElementById("start_time").value,
+        end_time: document.getElementById("end_time").value
+    };
+
+    console.log("Sending:", data);  // Debug check
+
+    // 2️⃣ Send to backend
+    const response = await fetch("http://127.0.0.1:5000/book", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert(result.message);   // shows popup
+        return;
+    }
+
+    alert("Booking Sent for Approval!");
+    loadBookings();
+
+    document.getElementById("result").innerText = "Booking Sent for Approval!";
+    document.getElementById("result").className = "approved";
+
+    // (We’ll connect history refresh in Step‑3)
+    loadBookings();
+}
+
+
+
+async function loadBookings() {
+
+    const response = await fetch("http://127.0.0.1:5000/bookings");
+    const bookings = await response.json();
+
+    const historyList = document.getElementById("historyList");
+    historyList.innerHTML = "";
+
+    bookings.forEach(b => {
+
+        let statusColor =
+            b.status === "Approved" ? "#00c853" :
+            b.status === "Rejected" ? "#ff4d4d" :
+            "#ffc107";   // Pending
+
+        historyList.innerHTML += `
+            <div class="booking-card">
+                <p><strong>Venue:</strong> ${b.venue}</p>
+                <p><strong>Event:</strong> ${b.event_name}</p>
+                <p><strong>Date:</strong> ${b.date}</p>
+                <p><strong>Time:</strong> ${b.start_time} - ${b.end_time}</p>
+
+                <span style="
+                    background:${statusColor};
+                    padding:5px 10px;
+                    border-radius:8px;
+                    font-size:12px;
+                    color:white;">
+                    ${b.status}
+                </span>
+
+                ${isAdmin ? `
+                    <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+                        <button onclick="approveBooking(${b.id})">Approve</button>
+                        <button onclick="rejectBooking(${b.id})">Reject</button>
+                        <button onclick="deleteBooking(${b.id})">Delete</button>
+                    </div>
+                ` : ""}
+            </div>
+        `;
+    });
+}
+async function approveBooking(id) {
+    await fetch(`http://127.0.0.1:5000/approve/${id}`, {
+        method: "PUT"
+    });
+    loadBookings();
+}
+
+async function rejectBooking(id) {
+    await fetch(`http://127.0.0.1:5000/reject/${id}`, {
+        method: "PUT"
+    });
+    loadBookings();
+}
+
+async function deleteBooking(id) {
+    await fetch(`http://127.0.0.1:5000/booking/${id}`, {
+        method: "DELETE"
+    });
+    loadBookings();
+}
+
+function toggleAdmin() {
+
+    if (!isAdmin) {
+        // Ask password only when trying to enter admin mode
+        const enteredPassword = prompt("Enter Admin Password:");
+
+        if (enteredPassword === ADMIN_PASSWORD) {
+            isAdmin = true;
+            alert("Admin Mode Enabled");
+        } else {
+            alert("Incorrect Password!");
+            return;   // stop here
+        }
+
+    } else {
+        // If already admin → switch back to user without password
+        isAdmin = false;
+        alert("Switched to User Mode");
+    }
+
+    loadBookings();   // refresh UI
+}
+
+
+async function loadVenues() {
+
+    const response = await fetch("http://127.0.0.1:5000/venues");
+    const venues = await response.json();
+
+    const dropdown = document.getElementById("venueSelect");
+
+    venues.forEach(v => {
+        dropdown.innerHTML += `
+            <option value="${v.name}">
+                ${v.name} - ${v.building} (Floor ${v.floor})
+            </option>
+        `;
+    });
+}
+
+loadVenues();  // run when page loads
+
+loadBookings();  // Load when page opens
+
+</script>
+
+
+</body>
+</html>
