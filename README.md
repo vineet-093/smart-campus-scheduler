@@ -59,3 +59,7 @@ The system ensures conflict-free scheduling through automated time validation an
 ---
 
 ## 📂 Project Structure
+├── app.py
+├── venues.json
+├── database.db
+└── index.html
